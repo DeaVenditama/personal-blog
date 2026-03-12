@@ -1,0 +1,17 @@
+-- Optimasi tabel posts (Kondisi 'where status' dan 'order by published_at' sering dipakai)
+ALTER TABLE `posts` 
+ADD INDEX `idx_posts_status` (`status`),
+ADD INDEX `idx_posts_category_id` (`category_id`),
+ADD INDEX `idx_posts_slug` (`slug`),
+ADD INDEX `idx_posts_published_at` (`published_at`);
+-- Optimasi tabel post_views (Kondisi composite untuk anti-spam view counter)
+ALTER TABLE `post_views`
+ADD INDEX `idx_post_views_composite` (`post_id`, `ip_address`, `viewed_at`);
+-- Optimasi tabel comments (Mencari komentar berdasarkan post)
+ALTER TABLE `comments`
+ADD INDEX `idx_comments_post_id` (`post_id`),
+ADD INDEX `idx_comments_parent_id` (`parent_id`);
+-- Optimasi tabel products (Sering dicari berdasarkan active dan slug)
+ALTER TABLE `products`
+ADD INDEX `idx_products_is_active` (`is_active`),
+ADD INDEX `idx_products_slug` (`slug`);
