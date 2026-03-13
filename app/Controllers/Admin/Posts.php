@@ -66,6 +66,121 @@ class Posts extends BaseController
         return redirect()->to(base_url('admin/posts'));
     }
 
+    public function generateText()
+    {
+        $context = $this->request->getPost('context');
+        $readingTime = $this->request->getPost('reading_time');
+        
+        $categoryModel = new \App\Models\Category();
+        $categories = $categoryModel->orderBy('name', 'ASC')->findAll();
+        $categoryListString = '';
+        if (!empty($categories)) {
+            $catArr = [];
+            foreach ($categories as $cat) {
+                $catArr[] = $cat['id'] . ': ' . $cat['name'];
+            }
+            $categoryListString = implode(', ', $catArr);
+        }
+
+        if (empty($context)) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Context is required', 'csrfHash' => csrf_hash()]);
+        }
+
+        $apiKey = env('GEMINI_API_KEY');
+        if (empty($apiKey)) {
+            return $this->response->setJSON(['success' => false, 'message' => 'API Key is missing', 'csrfHash' => csrf_hash()]);
+        }
+
+        $styleGuide = "
+SYSTEM PROMPT: THE HYBRID TECH-STORYTELLER STYLE GUIDE (DEA VENDITAMA X RADITYA DIKA)
+1. PERSONA DEFINITION
+- Role: A Senior Software Engineer/Data Scientist with a sense of humor.
+- Character: The Relatable Expert. Highly technical but struggles with everyday human problems like bugs, deadlines, etc.
+- Primary Language: Bahasa Indonesia (Santai/Semi-formal).
+
+2. NARRATIVE ARCHITECTURE
+- The Keresahan Hook: Every article MUST start with a personal anxiety or a funny observation.
+- Self-Deprecation: Mention mistakes, confusion, or stupid bugs.
+- Slice-of-Life Analogies: Explain complex tech using absurd everyday analogies.
+- The Twist or Observation: Include short, witty observations about programmer life.
+
+3. TECHNICAL CORE
+- Systematic Clarity: After the narrative intro, transition into a structured tutorial using headers.
+- The Documentation Bridge: Always explain *why* we use a certain function, not just *what* it does.
+- Code as Narrative: Code snippets should be clean and commented. Explain logic as if talking to a friend.
+- Scannability: Use Bullet points, Bold text for keywords.
+
+4. TONE & DICTION
+- Personal Pronoun: Always use 'Saya'.
+- Phrasing: Use conversational Indonesian. Avoid being overly academic.
+- Technical Terms: Keep English technical terms as they are but explain them in a simple Indonesian context.
+- Humor Style: Observational and slightly dry.
+
+5. ARTICLE TEMPLATE / FLOW
+1. [THE HOOK]: A 1-2 paragraph story about a problem or keresahan.
+2. [THE TRANSITION]: Transition into the topic.
+3. [THE TUTORIAL]: Clear Headers, Practical steps, Lesson Learned notes.
+4. [THE REFLECTION]: A short closing or funny closing thought.
+
+Format the output strictly as a JSON object containing the following keys:
+- \"title\": A catchy and engaging title for the blog post
+- \"content\": The actual blog post content formatted directly in clean, semantic HTML (using <p>, <h2>, <ul>, etc.) so it can be directly pasted into a WYSIWYG editor.
+- \"category_id\": The integer ID of the most relevant category from this list ($categoryListString). Pick the closest fit, or leave as null if none fit.
+- \"slug\": A URL-friendly slug based on the title (e.g. \"my-awesome-post\").
+- \"meta_title\": SEO meta title (max 60 characters).
+- \"meta_description\": SEO meta description (max 160 characters).
+
+Do NOT wrap the output in any markdown blocks (like ```json or ```html). Just return the raw JSON object.
+";
+
+        $prompt = $styleGuide . "\n\nPlease write a blog post about: " . $context . ". The reading time should be approximately " . $readingTime . ".";
+
+        $client = \Config\Services::curlrequest();
+        $url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=' . $apiKey;
+
+        try {
+            $response = $client->post($url, [
+                'headers' => [
+                    'Content-Type' => 'application/json',
+                ],
+                'json' => [
+                    'contents' => [
+                        [
+                            'parts' => [
+                                ['text' => $prompt]
+                            ]
+                        ]
+                    ], // Move generationConfig down here, outside 'contents'
+                    'generationConfig' => [
+                        'temperature' => 0.7, // Adjust parameters as needed
+                        'thinkingConfig' => [
+                            'thinkingBudget' => 1024
+                        ]
+                    ]
+                ]
+            ]);
+
+            if ($response->getStatusCode() === 200) {
+                $body = json_decode($response->getBody(), true);
+
+                if (isset($body['candidates'][0]['content']['parts'][0]['text'])) {
+                    $generatedText = $body['candidates'][0]['content']['parts'][0]['text'];
+
+                    // Remove markdown wrapper if exists (some LLMs still add it despite instructions)
+                    $generatedText = preg_replace('/^```(?:json|html)?\s*/i', '', $generatedText);
+                    $generatedText = preg_replace('/```$/', '', trim($generatedText));
+
+                    return $this->response->setJSON(['success' => true, 'text' => $generatedText, 'csrfHash' => csrf_hash()]);
+                }
+            }
+
+            return $this->response->setJSON(['success' => false, 'message' => 'Invalid response from AI server', 'csrfHash' => csrf_hash()]);
+        }
+        catch (\Exception $e) {
+            return $this->response->setJSON(['success' => false, 'message' => $e->getMessage(), 'csrfHash' => csrf_hash()]);
+        }
+    }
+
     public function show($id)
     {
         $postModel = new \App\Models\Post();

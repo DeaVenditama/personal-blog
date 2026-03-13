@@ -13,9 +13,42 @@
     <form action="<?= base_url('admin/posts/update/' . $post['id']) ?>" method="post">
         <?= csrf_field() ?>
 
+        <div class="d-flex justify-content-end mb-3">
+            <button type="button" class="btn btn-sm btn-outline-primary" id="btn-toggle-ai">
+                <i class="bi bi-robot"></i> Auto Generate Post
+            </button>
+        </div>
+
+        <div class="card p-3 mb-4 bg-light border-primary d-none" id="ai-form-container" style="border-style: dashed !important;">
+            <h6 class="fw-bold mb-3"><i class="bi bi-magic text-primary"></i> AI Content Generator</h6>
+            <div class="mb-3">
+                <label class="form-label text-muted small fw-bold mb-1">Context / Topic</label>
+                <textarea id="ai-context" class="form-control" rows="5" placeholder="Describe the topic in detail (e.g. A comprehensive guide on PHP 8 features including JIT compiler and match expression...)" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'" style="overflow:hidden; resize:none;"></textarea>
+            </div>
+            <div class="row align-items-end">
+                <div class="col-md-5 mb-2 mb-md-0">
+                    <label class="form-label text-muted small fw-bold mb-1">Reading Time</label>
+                    <select id="ai-reading-time" class="form-select">
+                        <option value="Short (1-2 minutes)">Short (1-2 minutes)</option>
+                        <option value="Medium (3-5 minutes)">Medium (3-5 minutes)</option>
+                        <option value="Long (5+ minutes)">Long (5+ minutes)</option>
+                    </select>
+                </div>
+                <div class="col-md-7 text-md-end text-start mt-3 mt-md-0 flex-wrap d-flex justify-content-md-end gap-2">
+                    <button type="button" class="btn btn-outline-secondary" id="btn-copy-content" title="Copy from Editor to Context">
+                        <i class="bi bi-clipboard"></i> Copy Content
+                    </button>
+                    <button type="button" class="btn btn-primary" id="btn-generate-ai">
+                        <span class="spinner-border spinner-border-sm d-none me-1" id="ai-spinner" role="status" aria-hidden="true"></span>
+                        <i class="bi bi-stars" id="ai-icon"></i> Generate Post
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <div class="mb-3">
             <label class="form-label text-muted small"><strong>Post Title</strong></label>
-            <input type="text" name="title" class="form-control" required value="<?= esc($post['title']) ?>">
+            <input type="text" id="post-title" name="title" class="form-control" required value="<?= esc($post['title']) ?>">
         </div>
 
         <div class="mb-3">
@@ -81,6 +114,138 @@
 <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
 <script>
     $(document).ready(function () {
+        let csrfName = '<?= csrf_token() ?>';
+        let csrfHash = '<?= csrf_hash() ?>';
+
+        $('#btn-toggle-ai').click(function() {
+            $('#ai-form-container').toggleClass('d-none');
+        });
+
+        $('#btn-copy-content').click(function() {
+            let currentTitle = $('#post-title').val().trim();
+            let currentContent = $('#editor').summernote('code');
+            // Remove HTML tags to get plain text, or keep HTML if AI needs it.
+            // Plain text is usually better for context summarizing/re-writing.
+            let cleanText = $('<div>').html(currentContent).text().trim();
+            
+            let finalContext = '';
+            if (currentTitle) {
+                finalContext += 'Title: ' + currentTitle + '\n\n';
+            }
+            if (cleanText) {
+                finalContext += 'Content:\n' + cleanText;
+            }
+
+            if (finalContext === '') {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Empty Content',
+                    text: 'The title and editor are empty. Nothing to copy.',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+                return;
+            }
+            
+            $('#ai-context').val(finalContext);
+            
+            // Auto-resize the textarea
+            $('#ai-context').css('height', 'auto');
+            $('#ai-context').css('height', $('#ai-context')[0].scrollHeight + 'px');
+        });
+
+        $('#btn-generate-ai').click(function() {
+            let context = $('#ai-context').val();
+            let time = $('#ai-reading-time').val();
+            let btn = $(this);
+            let spinner = $('#ai-spinner');
+
+            if (!context) {
+                alert('Please enter a context or topic.');
+                return;
+            }
+
+            btn.prop('disabled', true);
+            spinner.removeClass('d-none');
+
+            Swal.fire({
+                title: 'Generating Content...',
+                html: 'Please wait while the AI writes your post.<br>This might take a few seconds.',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            let dataPayload = {
+                context: context,
+                reading_time: time
+            };
+            dataPayload[csrfName] = csrfHash;
+
+            $.ajax({
+                url: '<?= base_url("admin/posts/generateText") ?>',
+                type: 'POST',
+                data: dataPayload,
+                success: function(response) {
+                    btn.prop('disabled', false);
+                    spinner.addClass('d-none');
+                    
+                    // Update CSRF hash for next request
+                    if(response.csrfHash) {
+                        csrfHash = response.csrfHash;
+                    }
+
+                    if(response.success) {
+                        $('#ai-form-container').addClass('d-none');
+                        try {
+                            // The AI is instructed to return JSON
+                            let data = JSON.parse(response.text);
+                            
+                            if(data.title) $('#post-title').val(data.title);
+                            if(data.content) $('#editor').summernote('code', data.content);
+                            if(data.slug) $('input[name="slug"]').val(data.slug);
+                            if(data.meta_title) $('input[name="meta_title"]').val(data.meta_title);
+                            if(data.meta_description) $('textarea[name="meta_description"]').val(data.meta_description);
+                            if(data.category_id) $('select[name="category_id"]').val(data.category_id);
+                            
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success!',
+                                text: 'Content generated and fields populated successfully.',
+                                timer: 2000,
+                                showConfirmButton: false
+                            });
+                        } catch (e) {
+                            console.error("Failed to parse JSON response", e, response.text);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Parsing Error',
+                                text: 'Generated output format was corrupted. Please try again.'
+                            });
+                        }
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Generation Failed',
+                            text: response.message
+                        });
+                    }
+                },
+                error: function(xhr) {
+                    btn.prop('disabled', false);
+                    spinner.addClass('d-none');
+                    console.log(xhr.responseText);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Request Error',
+                        text: 'Error generating text. See console for details.'
+                    });
+                }
+            });
+        });
+
         $('#editor').summernote({
             placeholder: 'Write your post content here...',
             tabsize: 2,
