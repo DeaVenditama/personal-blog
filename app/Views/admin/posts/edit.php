@@ -195,6 +195,7 @@
                     // Update CSRF hash for next request
                     if(response.csrfHash) {
                         csrfHash = response.csrfHash;
+                        $('input[name="' + csrfName + '"]').val(csrfHash);
                     }
 
                     if(response.success) {
