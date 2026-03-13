@@ -32,6 +32,7 @@ $routes->group('admin', ['namespace' => 'App\Controllers\Admin', 'filter' => 'au
     $routes->post('posts/replyComment/(:num)', 'Posts::replyComment/$1');
     $routes->get('posts/edit/(:num)', 'Posts::edit/$1');
     $routes->post('posts/update/(:num)', 'Posts::update/$1');
+    $routes->get('posts/delete/(:num)', 'Posts::delete/$1');
     // Categories CRUD
     $routes->get('categories', 'Categories::index');
     $routes->post('categories/store', 'Categories::store');
