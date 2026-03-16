@@ -42,10 +42,23 @@
                 </span>
             </div>
 
-            <?php if (!empty($post['image_path'])): ?>
+            <?php 
+                $thumbnail_url = null;
+                if (!empty($post['image_path'])) {
+                    $thumbnail_url = base_url($post['image_path']);
+                } else {
+                    // Try to extract first image from content
+                    // Summernote often uses data:image/base64 so the src can be very long
+                    if (preg_match('/<img[^>]+src=(?:\"|\')([^\"\']+)(?:\"|\')[^>]*>/i', $post['content'], $match)) {
+                        $thumbnail_url = $match[1];
+                    }
+                }
+            ?>
+
+            <?php if (!empty($thumbnail_url)): ?>
                 <div class="mb-3 rounded overflow-hidden shadow-sm" style="height: 200px;">
                     <a href="<?= base_url($post['slug']) ?>">
-                        <img src="<?= base_url($post['image_path']) ?>" class="w-100 h-100 object-fit-cover"
+                        <img src="<?= $thumbnail_url ?>" class="w-100 h-100 object-fit-cover"
                             alt="<?= esc($post['title']) ?>" data-fallback="<?= htmlspecialchars($post['title'], ENT_QUOTES) ?>"
                             onerror="this.onerror=null; this.outerHTML='<div class=\'w-100 h-100 d-flex align-items-center justify-content-center bg-secondary text-white p-3 text-center\'><strong>' + this.getAttribute('data-fallback') + '</strong></div>';">
                     </a>

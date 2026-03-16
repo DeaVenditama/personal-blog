@@ -2,6 +2,16 @@
 
 <?= $this->section('content') ?>
 
+<style>
+    .post-content img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 8px; /* Optional: adds nice rounded corners */
+        display: block; /* Helps with margins if needed */
+        margin: 1rem auto; /* Centers the image */
+    }
+</style>
+
 <div class="mb-4">
     <a href="<?= base_url() ?>" class="text-decoration-none text-muted"><i class="bi bi-arrow-left"></i> Kembali ke
         Beranda</a>
