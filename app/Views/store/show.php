@@ -118,6 +118,20 @@
                     <div class="text-muted small mt-4 text-center">
                         <i class="bi bi-shield-check"></i> Pembelian mudah dan aman via WhatsApp
                     </div>
+
+                    <hr class="my-4">
+                    <h6 class="text-muted mb-3 text-center">Bagikan Produk:</h6>
+                    <div class="d-flex flex-wrap gap-2 justify-content-center">
+                        <?php
+                        $shareUrl = urlencode(current_url());
+                        $shareTitle = urlencode($product['title']);
+                        ?>
+                        <a href="https://twitter.com/intent/tweet?text=<?= $shareTitle ?>&url=<?= $shareUrl ?>" target="_blank" class="btn btn-outline-dark btn-sm rounded-pill"><i class="bi bi-twitter-x"></i></a>
+                        <a href="https://threads.net/intent/post?text=<?= $shareTitle ?>%20<?= $shareUrl ?>" target="_blank" class="btn btn-outline-dark btn-sm rounded-pill"><i class="bi bi-threads"></i></a>
+                        <a href="https://www.linkedin.com/sharing/share-offsite/?url=<?= $shareUrl ?>" target="_blank" class="btn btn-outline-dark btn-sm rounded-pill"><i class="bi bi-linkedin"></i></a>
+                        <a href="https://www.facebook.com/sharer/sharer.php?u=<?= $shareUrl ?>" target="_blank" class="btn btn-outline-dark btn-sm rounded-pill"><i class="bi bi-facebook"></i></a>
+                        <a href="https://api.whatsapp.com/send?text=<?= $shareTitle ?>%20<?= $shareUrl ?>" target="_blank" class="btn btn-outline-dark btn-sm rounded-pill"><i class="bi bi-whatsapp"></i></a>
+                    </div>
                 </div>
             </div>
         </div>

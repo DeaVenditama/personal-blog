@@ -2,15 +2,6 @@
 
 <?= $this->section('content') ?>
 
-<style>
-    .post-content img {
-        max-width: 100%;
-        height: auto;
-        border-radius: 8px; /* Optional: adds nice rounded corners */
-        display: block; /* Helps with margins if needed */
-        margin: 1rem auto; /* Centers the image */
-    }
-</style>
 
 <div class="mb-4">
     <a href="<?= base_url() ?>" class="text-decoration-none text-muted"><i class="bi bi-arrow-left"></i> Kembali ke
@@ -56,16 +47,24 @@
             $shareTitle = urlencode($post['title']);
             ?>
             <a href="https://twitter.com/intent/tweet?text=<?= $shareTitle ?>&url=<?= $shareUrl ?>" target="_blank"
-                rel="noopener noreferrer" class="btn btn-outline-dark btn-sm rounded-pill px-3">
+                rel="noopener noreferrer" class="btn btn-outline-dark btn-sm rounded-pill px-3 mb-2">
                 <i class="bi bi-twitter-x"></i> Bagikan ke X
             </a>
+            <a href="https://threads.net/intent/post?text=<?= $shareTitle ?>%20<?= $shareUrl ?>" target="_blank"
+                rel="noopener noreferrer" class="btn btn-outline-dark btn-sm rounded-pill px-3 mb-2">
+                <i class="bi bi-threads"></i> Threads
+            </a>
             <a href="https://www.linkedin.com/sharing/share-offsite/?url=<?= $shareUrl ?>" target="_blank"
-                rel="noopener noreferrer" class="btn btn-outline-dark btn-sm rounded-pill px-3">
-                <i class="bi bi-linkedin"></i> Bagikan ke LinkedIn
+                rel="noopener noreferrer" class="btn btn-outline-dark btn-sm rounded-pill px-3 mb-2">
+                <i class="bi bi-linkedin"></i> LinkedIn
             </a>
             <a href="https://www.facebook.com/sharer/sharer.php?u=<?= $shareUrl ?>" target="_blank"
-                rel="noopener noreferrer" class="btn btn-outline-dark btn-sm rounded-pill px-3">
-                <i class="bi bi-facebook"></i> Bagikan
+                rel="noopener noreferrer" class="btn btn-outline-dark btn-sm rounded-pill px-3 mb-2">
+                <i class="bi bi-facebook"></i> Facebook
+            </a>
+            <a href="https://api.whatsapp.com/send?text=<?= $shareTitle ?>%20<?= $shareUrl ?>" target="_blank"
+                rel="noopener noreferrer" class="btn btn-outline-dark btn-sm rounded-pill px-3 mb-2">
+                <i class="bi bi-whatsapp"></i> WhatsApp
             </a>
         </div>
     </div>

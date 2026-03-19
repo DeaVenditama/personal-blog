@@ -85,24 +85,32 @@
                     </div>
 
                     <?php if (!empty($project['project_url'])): ?>
-                        <div class="d-grid gap-2">
+                        <div class="d-grid gap-2 mb-4">
                             <a href="<?= esc($project['project_url']) ?>" target="_blank" rel="noopener noreferrer"
                                 class="btn btn-dark rounded-pill fw-bold">
                                 <i class="bi bi-box-arrow-up-right me-1"></i> Kunjungi Proyek
                             </a>
                         </div>
                     <?php endif; ?>
+
+                    <hr class="my-4">
+                    <h6 class="text-muted mb-3">Bagikan Proyek Ini:</h6>
+                    <div class="d-flex flex-wrap gap-2">
+                        <?php
+                        $shareUrl = urlencode(current_url());
+                        $shareTitle = urlencode($project['title']);
+                        ?>
+                        <a href="https://twitter.com/intent/tweet?text=<?= $shareTitle ?>&url=<?= $shareUrl ?>" target="_blank" class="btn btn-outline-dark btn-sm rounded-pill px-3"><i class="bi bi-twitter-x"></i> X</a>
+                        <a href="https://threads.net/intent/post?text=<?= $shareTitle ?>%20<?= $shareUrl ?>" target="_blank" class="btn btn-outline-dark btn-sm rounded-pill px-3"><i class="bi bi-threads"></i> Threads</a>
+                        <a href="https://www.linkedin.com/sharing/share-offsite/?url=<?= $shareUrl ?>" target="_blank" class="btn btn-outline-dark btn-sm rounded-pill px-3"><i class="bi bi-linkedin"></i> LinkedIn</a>
+                        <a href="https://www.facebook.com/sharer/sharer.php?u=<?= $shareUrl ?>" target="_blank" class="btn btn-outline-dark btn-sm rounded-pill px-3"><i class="bi bi-facebook"></i> Facebook</a>
+                        <a href="https://api.whatsapp.com/send?text=<?= $shareTitle ?>%20<?= $shareUrl ?>" target="_blank" class="btn btn-outline-dark btn-sm rounded-pill px-3"><i class="bi bi-whatsapp"></i> WhatsApp</a>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<style>
-    [data-theme="dark"] .badge.bg-light {
-        background-color: #2a2a2a !important;
-        color: var(--text-color) !important;
-        border-color: var(--border-color) !important;
-    }
-</style>
+
 <?= $this->endSection() ?>

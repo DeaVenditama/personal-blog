@@ -72,32 +72,5 @@
     <?php endif; ?>
 </div>
 
-<style>
-    .transition-transform {
-        transition: transform 0.3s ease;
-    }
 
-    .hover-scale:hover {
-        transform: scale(1.03);
-    }
-
-    .hover-accent:hover {
-        color: var(--accent-color) !important;
-        text-decoration: underline !important;
-    }
-
-    .object-fit-cover {
-        object-fit: cover;
-    }
-
-    [data-theme="dark"] .project-card a.text-dark {
-        color: var(--text-color) !important;
-    }
-
-    [data-theme="dark"] .badge.bg-light {
-        background-color: #2a2a2a !important;
-        color: var(--text-color) !important;
-        border-color: var(--border-color) !important;
-    }
-</style>
 <?= $this->endSection() ?>
