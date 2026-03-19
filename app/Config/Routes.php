@@ -28,6 +28,7 @@ $routes->group('admin', ['namespace' => 'App\Controllers\Admin', 'filter' => 'au
     $routes->get('posts/create', 'Posts::create');
     $routes->post('posts/store', 'Posts::store');
     $routes->post('posts/generateText', 'Posts::generateText'); // Gemini AI Route
+    $routes->post('posts/uploadImage', 'Posts::uploadImage');
     $routes->get('posts/show/(:num)', 'Posts::show/$1');
     $routes->get('posts/comments/(:num)', 'Posts::comments/$1');
     $routes->post('posts/replyComment/(:num)', 'Posts::replyComment/$1');

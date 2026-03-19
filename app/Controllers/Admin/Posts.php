@@ -180,6 +180,29 @@ Do NOT wrap the output in any markdown blocks (like ```json or ```html). Just re
             return $this->response->setJSON(['success' => false, 'message' => $e->getMessage(), 'csrfHash' => csrf_hash()]);
         }
     }
+    
+    public function uploadImage()
+    {
+        $file = $this->request->getFile('image');
+        
+        if ($file && $file->isValid() && !$file->hasMoved()) {
+            $newName = $file->getRandomName();
+            // Pindahkan file ke public/assets/images
+            $file->move(FCPATH . 'assets/images', $newName);
+            
+            return $this->response->setJSON([
+                'success' => true,
+                'url' => base_url('assets/images/' . $newName),
+                'csrfHash' => csrf_hash()
+            ]);
+        }
+        
+        return $this->response->setJSON([
+            'success' => false,
+            'message' => 'Failed to upload image.',
+            'csrfHash' => csrf_hash()
+        ]);
+    }
 
     public function show($id)
     {

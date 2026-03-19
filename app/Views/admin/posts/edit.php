@@ -259,8 +259,46 @@
                 ['table', ['table']],
                 ['insert', ['link', 'picture', 'video']],
                 ['view', ['fullscreen', 'codeview', 'help']]
-            ]
+            ],
+            callbacks: {
+                onImageUpload: function(files) {
+                    for(let i=0; i < files.length; i++) {
+                        uploadImage(files[i]);
+                    }
+                }
+            }
         });
+
+        function uploadImage(file) {
+            let data = new FormData();
+            data.append("image", file);
+            data.append(csrfName, csrfHash);
+            
+            $.ajax({
+                url: '<?= base_url("admin/posts/uploadImage") ?>',
+                cache: false,
+                contentType: false,
+                processData: false,
+                data: data,
+                type: "POST",
+                success: function(response) {
+                    if (response.success) {
+                        $('#editor').summernote('insertImage', response.url);
+                        // Update CSRF token for future requests
+                        if(response.csrfHash) {
+                            csrfHash = response.csrfHash;
+                            $('input[name="' + csrfName + '"]').val(csrfHash);
+                        }
+                    } else {
+                        alert(response.message);
+                    }
+                },
+                error: function(data) {
+                    console.log(data);
+                    alert('Error uploading image');
+                }
+            });
+        }
     });
 </script>
 <?= $this->endSection() ?>
