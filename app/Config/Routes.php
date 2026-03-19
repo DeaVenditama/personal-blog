@@ -8,6 +8,7 @@ use CodeIgniter\Router\RouteCollection;
 $routes->get('/', 'Home::index');
 $routes->get('category/(:segment)', 'Home::category/$1');
 $routes->get('feed', 'Home::feed');
+$routes->get('sitemap.xml', 'Sitemap::index');
 $routes->get('portfolio', 'Portfolio::index');
 // Store Routes
 $routes->get('store', 'Store::index');
