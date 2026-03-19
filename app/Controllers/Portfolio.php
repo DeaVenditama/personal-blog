@@ -37,8 +37,10 @@ class Portfolio extends BaseController
 
         $data = [
             'title' => esc($project['title']) . ' - Portfolio Dea Venditama',
-            'meta_description' => strip_tags((string) $project['description']),
+            'meta_description' => substr(strip_tags((string) $project['description']), 0, 160),
             'canonical_url' => base_url('portfolio/' . $project['id']),
+            'og_type' => 'article',
+            'og_image' => (!empty($project['image_path'])) ? base_url(trim(explode(';', $project['image_path'])[0])) : null,
             'project' => $project
         ];
 

@@ -54,7 +54,7 @@ class Store extends BaseController
             'meta_description' => substr(strip_tags($product['description']), 0, 160),
             'canonical_url' => base_url('store/' . $product['slug']),
             'og_type' => 'product',
-            'og_image' => (!empty($product['thumbnail'])) ? base_url('uploads/products/' . $product['thumbnail']) : null, // Uses default if null
+            'og_image' => (!empty($product['thumbnail'])) ? base_url('uploads/products/' . trim(explode(';', $product['thumbnail'])[0])) : null,
             'product' => $product
         ];
 

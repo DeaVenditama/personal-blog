@@ -180,8 +180,10 @@ class Home extends BaseController
         if ($project) {
             $data = [
                 'title' => esc($project['title']) . ' - Portfolio Dea Venditama',
-                'meta_description' => strip_tags((string) $project['description']),
+                'meta_description' => substr(strip_tags((string) $project['description']), 0, 160),
                 'canonical_url' => base_url($project['slug']),
+                'og_type' => 'article',
+                'og_image' => (!empty($project['image_path'])) ? base_url(trim(explode(';', $project['image_path'])[0])) : null,
                 'project' => $project
             ];
             return view('portfolio/show', $data);
@@ -199,7 +201,7 @@ class Home extends BaseController
                 'meta_description' => substr(strip_tags($product['description']), 0, 160),
                 'canonical_url' => base_url($product['slug']),
                 'og_type' => 'product',
-                'og_image' => (!empty($product['thumbnail'])) ? base_url('uploads/products/' . $product['thumbnail']) : null,
+                'og_image' => (!empty($product['thumbnail'])) ? base_url('uploads/products/' . trim(explode(';', $product['thumbnail'])[0])) : null,
                 'product' => $product
             ];
             return view('store/show', $data);
