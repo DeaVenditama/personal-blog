@@ -55,10 +55,9 @@
 
                 <div class="card bg-light border-0 p-3 mb-3">
                     <label class="form-label text-muted small"><strong>Project Image</strong></label>
-                    <input type="file" name="image" class="form-control mb-2" accept="image/*" required id="imageInput">
-                    <div class="text-center mt-2">
-                        <img id="imagePreview" src="" alt="Preview"
-                            style="max-width: 100%; display: none; border-radius: 4px;">
+                    <input type="file" name="image[]" class="form-control mb-2" accept="image/*" multiple required id="imageInput">
+                    <div class="form-text text-muted mb-2">You can select multiple images by holding Ctrl/Cmd.</div>
+                    <div class="d-flex flex-wrap gap-2 mt-2 justify-content-center" id="imagePreviewContainer">
                     </div>
                 </div>
             </div>
@@ -75,14 +74,21 @@
 <?= $this->section('scripts') ?>
 <script>
     document.getElementById('imageInput').addEventListener('change', function (e) {
-        if (e.target.files && e.target.files[0]) {
-            let reader = new FileReader();
-            reader.onload = function (e) {
-                let img = document.getElementById('imagePreview');
-                img.src = e.target.result;
-                img.style.display = 'block';
+        let previewContainer = document.getElementById('imagePreviewContainer');
+        previewContainer.innerHTML = '';
+        if (e.target.files && e.target.files.length > 0) {
+            for(let i=0; i<e.target.files.length; i++) {
+                let reader = new FileReader();
+                reader.onload = function (event) {
+                    let img = document.createElement('img');
+                    img.src = event.target.result;
+                    img.style.maxHeight = '100px';
+                    img.style.borderRadius = '4px';
+                    img.classList.add('shadow-sm', 'border');
+                    previewContainer.appendChild(img);
+                }
+                reader.readAsDataURL(e.target.files[i]);
             }
-            reader.readAsDataURL(e.target.files[0]);
         }
     });
 </script>

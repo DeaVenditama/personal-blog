@@ -78,12 +78,20 @@
 
                     <div class="mb-3">
                         <label for="thumbnail" class="form-label">Thumbnail Baru (Gambar)</label>
-                        <input class="form-control" type="file" id="thumbnail" name="thumbnail" accept="image/*">
+                        <input class="form-control" type="file" id="thumbnail" name="thumbnail[]" accept="image/*" multiple>
+                        <div class="form-text mt-1">Pilih beberapa gambar sekaligus. Biarkan kosong jika tidak ingin mengubah.</div>
                         <?php if ($product['thumbnail']): ?>
-                            <div class="mt-2 text-muted small border bg-white p-2 rounded text-center">
-                                <img src="<?= base_url('uploads/products/' . $product['thumbnail']) ?>" alt="Thumbnail"
-                                    class="img-fluid" style="max-height: 120px; object-fit: contain;">
-                                <div class="mt-1">Saat ini: <?= esc($product['thumbnail']) ?></div>
+                            <div class="mt-2 text-muted small border bg-white p-2 rounded">
+                                <div class="mb-2 text-center">Saat ini:</div>
+                                <div class="d-flex flex-wrap gap-2 justify-content-center">
+                                <?php 
+                                    $oldImages = explode(';', $product['thumbnail']);
+                                    foreach($oldImages as $oldImg):
+                                ?>
+                                    <img src="<?= base_url('uploads/products/' . trim($oldImg)) ?>" alt="Thumbnail"
+                                        class="img-fluid border shadow-sm" style="max-height: 80px; object-fit: contain; border-radius: 4px;">
+                                <?php endforeach; ?>
+                                </div>
                             </div>
                         <?php endif; ?>
                     </div>

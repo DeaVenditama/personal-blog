@@ -9,10 +9,32 @@
 <div class="row g-5">
     <div class="col-lg-8">
         <?php if (!empty($project['image_path'])): ?>
-            <img src="<?= base_url(esc($project['image_path'])) ?>"
-                class="img-fluid rounded shadow-sm w-100 object-fit-cover mb-4" style="max-height: 500px;"
-                alt="<?= esc($project['title']) ?>" data-fallback="<?= htmlspecialchars($project['title'], ENT_QUOTES) ?>"
-                onerror="this.onerror=null; this.outerHTML='<div class=\'bg-secondary rounded d-flex align-items-center justify-content-center text-white w-100 shadow-sm text-center p-4 mb-4\' style=\'min-height: 400px;\'><h1 class=\'display-5 fw-bold\'>' + this.getAttribute('data-fallback') + '</h1></div>';">
+            <?php 
+                $images = explode(';', $project['image_path']); 
+                if (count($images) > 1): 
+            ?>
+                <div id="portfolioCarousel" class="carousel slide mb-4 shadow-sm rounded overflow-hidden" data-bs-ride="carousel">
+                    <div class="carousel-inner">
+                        <?php foreach ($images as $index => $img): ?>
+                            <div class="carousel-item <?= $index === 0 ? 'active' : '' ?>">
+                                <img src="<?= base_url(esc(trim($img))) ?>" class="d-block w-100 object-fit-cover" style="max-height: 500px;" alt="<?= esc($project['title']) ?>">
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#portfolioCarousel" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#portfolioCarousel" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+                </div>
+            <?php else: ?>
+                <img src="<?= base_url(esc(trim($images[0]))) ?>"
+                    class="img-fluid rounded shadow-sm w-100 object-fit-cover mb-4" style="max-height: 500px;"
+                    alt="<?= esc($project['title']) ?>">
+            <?php endif; ?>
         <?php else: ?>
             <div class="bg-secondary rounded d-flex align-items-center justify-content-center text-white w-100 shadow-sm text-center p-4 mb-4"
                 style="min-height: 400px;">
@@ -65,7 +87,7 @@
                     <?php if (!empty($project['project_url'])): ?>
                         <div class="d-grid gap-2">
                             <a href="<?= esc($project['project_url']) ?>" target="_blank" rel="noopener noreferrer"
-                                class="btn btn-dark btn-lg py-3 rounded-pill fw-bold">
+                                class="btn btn-dark rounded-pill fw-bold">
                                 <i class="bi bi-box-arrow-up-right me-1"></i> Kunjungi Proyek
                             </a>
                         </div>

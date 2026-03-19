@@ -84,94 +84,128 @@ class Home extends BaseController
             ->where('posts.status', 'published')
             ->first();
 
-        if (!$post) {
-            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
-        }
+        if ($post) {
+            // Logic for Anti-spam Read Count
+            $ip = $this->request->getIPAddress();
+            $viewTimeLimit = date('Y-m-d H:i:s', strtotime('-1 hour'));
 
-        // Logic for Anti-spam Read Count
-        $ip = $this->request->getIPAddress();
-        $viewTimeLimit = date('Y-m-d H:i:s', strtotime('-1 hour'));
+            $db = \Config\Database::connect();
+            $viewExists = $db->table('post_views')
+                ->where('post_id', $post['id'])
+                ->where('ip_address', $ip)
+                ->where('viewed_at >=', $viewTimeLimit)
+                ->countAllResults();
 
-        $db = \Config\Database::connect();
-        $viewExists = $db->table('post_views')
-            ->where('post_id', $post['id'])
-            ->where('ip_address', $ip)
-            ->where('viewed_at >=', $viewTimeLimit)
-            ->countAllResults();
+            if ($viewExists == 0) {
+                // Add view record
+                $db->table('post_views')->insert([
+                    'post_id' => $post['id'],
+                    'ip_address' => $ip,
+                    'viewed_at' => date('Y-m-d H:i:s')
+                ]);
 
-        if ($viewExists == 0) {
-            // Add view record
-            $db->table('post_views')->insert([
-                'post_id' => $post['id'],
-                'ip_address' => $ip,
-                'viewed_at' => date('Y-m-d H:i:s')
-            ]);
+                // Increment view count on post table
+                $post['read_count']++;
+                $postModel->update($post['id'], [
+                    'read_count' => $post['read_count']
+                ]);
+            }
 
-            // Increment view count on post table
-            $post['read_count']++;
-            $postModel->update($post['id'], [
-                'read_count' => $post['read_count']
-            ]);
-        }
+            $commentModel = new \App\Models\Comment();
 
-        $commentModel = new \App\Models\Comment();
+            $limit = $this->request->getGet('limit') ?: 10;
 
-        $limit = $this->request->getGet('limit') ?: 10;
-
-        // Fetch Level 0 (Main comments) directly paginated, DESC
-        $mainComments = $commentModel->where('post_id', $post['id'])
-            ->where('parent_id', null)
-            ->orderBy('created_at', 'DESC')
-            ->findAll($limit);
-
-        // Count total main comments for "Load More" logic
-        $totalMainComments = $commentModel->where('post_id', $post['id'])
-            ->where('parent_id', null)
-            ->countAllResults();
-
-        $comments = [];
-        $level1Replies = [];
-
-        // Fetch up to 5 Level 1 Replies per Main Comment, DESC
-        foreach ($mainComments as $main) {
-            $main['replies'] = [];
-
-            $repliesLevel1 = $commentModel->where('post_id', $post['id'])
-                ->where('parent_id', $main['id'])
+            // Fetch Level 0 (Main comments) directly paginated, DESC
+            $mainComments = $commentModel->where('post_id', $post['id'])
+                ->where('parent_id', null)
                 ->orderBy('created_at', 'DESC')
-                ->findAll(5);
+                ->findAll($limit);
 
-            foreach ($repliesLevel1 as $r1) {
-                // Fetch up to 5 Level 2 Replies per Level 1 Reply, DESC
-                $r1['replies'] = [];
-                $repliesLevel2 = $commentModel->where('post_id', $post['id'])
-                    ->where('parent_id', $r1['id'])
+            // Count total main comments for "Load More" logic
+            $totalMainComments = $commentModel->where('post_id', $post['id'])
+                ->where('parent_id', null)
+                ->countAllResults();
+
+            $comments = [];
+            $level1Replies = [];
+
+            // Fetch up to 5 Level 1 Replies per Main Comment, DESC
+            foreach ($mainComments as $main) {
+                $main['replies'] = [];
+
+                $repliesLevel1 = $commentModel->where('post_id', $post['id'])
+                    ->where('parent_id', $main['id'])
                     ->orderBy('created_at', 'DESC')
                     ->findAll(5);
 
-                foreach ($repliesLevel2 as $r2) {
-                    $r1['replies'][] = $r2;
+                foreach ($repliesLevel1 as $r1) {
+                    // Fetch up to 5 Level 2 Replies per Level 1 Reply, DESC
+                    $r1['replies'] = [];
+                    $repliesLevel2 = $commentModel->where('post_id', $post['id'])
+                        ->where('parent_id', $r1['id'])
+                        ->orderBy('created_at', 'DESC')
+                        ->findAll(5);
+
+                    foreach ($repliesLevel2 as $r2) {
+                        $r1['replies'][] = $r2;
+                    }
+
+                    $main['replies'][] = $r1;
                 }
 
-                $main['replies'][] = $r1;
+                $comments[$main['id']] = $main;
             }
 
-            $comments[$main['id']] = $main;
+            $data = [
+                'title' => (!empty($post['meta_title'])) ? $post['meta_title'] : $post['title'],
+                'meta_description' => (!empty($post['meta_description'])) ? $post['meta_description'] : substr(strip_tags($post['content']), 0, 160),
+                'canonical_url' => base_url($post['slug']),
+                'og_type' => 'article',
+                'og_image' => (!empty($post['image_path'])) ? base_url($post['image_path']) : null,
+                'post' => $post,
+                'comments' => $comments,
+                'totalMainComments' => $totalMainComments,
+                'currentLimit' => $limit
+            ];
+
+            return view('post_single', $data);
         }
 
-        $data = [
-            'title' => (!empty($post['meta_title'])) ? $post['meta_title'] : $post['title'],
-            'meta_description' => (!empty($post['meta_description'])) ? $post['meta_description'] : substr(strip_tags($post['content']), 0, 160),
-            'canonical_url' => base_url($post['slug']),
-            'og_type' => 'article',
-            'og_image' => (!empty($post['image_path'])) ? base_url($post['image_path']) : null,
-            'post' => $post,
-            'comments' => $comments,
-            'totalMainComments' => $totalMainComments,
-            'currentLimit' => $limit
-        ];
+        // Check Portfolios
+        $portfolioModel = new \App\Models\Portfolio();
+        $project = $portfolioModel->where('slug', $slug)
+            ->where('status', 'published')
+            ->first();
 
-        return view('post_single', $data);
+        if ($project) {
+            $data = [
+                'title' => esc($project['title']) . ' - Portfolio Dea Venditama',
+                'meta_description' => strip_tags((string) $project['description']),
+                'canonical_url' => base_url($project['slug']),
+                'project' => $project
+            ];
+            return view('portfolio/show', $data);
+        }
+
+        // Check Products
+        $productModel = new \App\Models\Product();
+        $product = $productModel->where('slug', $slug)
+            ->where('is_active', true)
+            ->first();
+
+        if ($product) {
+            $data = [
+                'title' => $product['title'] . ' | Source Code | Dea Venditama',
+                'meta_description' => substr(strip_tags($product['description']), 0, 160),
+                'canonical_url' => base_url($product['slug']),
+                'og_type' => 'product',
+                'og_image' => (!empty($product['thumbnail'])) ? base_url('uploads/products/' . $product['thumbnail']) : null,
+                'product' => $product
+            ];
+            return view('store/show', $data);
+        }
+
+        throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
     }
 
     public function feed()

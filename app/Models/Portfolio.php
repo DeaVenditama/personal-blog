@@ -12,7 +12,7 @@ class Portfolio extends Model
     protected $returnType = 'array';
     protected $useSoftDeletes = false;
     protected $protectFields = true;
-    protected $allowedFields = ['title', 'description', 'image_path', 'project_url', 'tools', 'sort_order', 'status'];
+    protected $allowedFields = ['slug', 'title', 'description', 'image_path', 'project_url', 'tools', 'sort_order', 'status'];
 
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;

@@ -60,19 +60,24 @@
                 <div class="card bg-light border-0 p-3 mb-3">
                     <label class="form-label text-muted small"><strong>Project Image</strong></label>
                     <?php if (!empty($portfolio['image_path'])): ?>
-                        <div class="mb-2 text-center">
-                            <img src="<?= base_url($portfolio['image_path']) ?>" alt="Current Image"
-                                style="max-width: 100%; border-radius: 4px;">
-                            <div class="form-text mt-1">Current Image</div>
+                        <div class="mb-2">
+                            <div class="form-text mt-1 mb-2">Current Images:</div>
+                            <div class="d-flex flex-wrap gap-2">
+                                <?php 
+                                $oldImages = explode(';', $portfolio['image_path']);
+                                foreach($oldImages as $oldImg):
+                                ?>
+                                    <img src="<?= base_url(trim($oldImg)) ?>" alt="Current Image"
+                                        style="max-height: 80px; border-radius: 4px;" class="border shadow-sm">
+                                <?php endforeach; ?>
+                            </div>
                         </div>
                     <?php endif; ?>
 
-                    <input type="file" name="image" class="form-control mb-2" accept="image/*" id="imageInput">
-                    <div class="form-text text-muted mb-2">Leave empty to keep current image</div>
+                    <input type="file" name="image[]" class="form-control mb-2" accept="image/*" multiple id="imageInput">
+                    <div class="form-text text-muted mb-2">Leave empty to keep current images. You can select multiple images.</div>
 
-                    <div class="text-center mt-2">
-                        <img id="imagePreview" src="" alt="New Preview"
-                            style="max-width: 100%; display: none; border-radius: 4px;">
+                    <div class="d-flex flex-wrap gap-2 mt-2 justify-content-center" id="imagePreviewContainer">
                     </div>
                 </div>
             </div>
@@ -89,16 +94,21 @@
 <?= $this->section('scripts') ?>
 <script>
     document.getElementById('imageInput').addEventListener('change', function (e) {
-        if (e.target.files && e.target.files[0]) {
-            let reader = new FileReader();
-            reader.onload = function (e) {
-                let img = document.getElementById('imagePreview');
-                img.src = e.target.result;
-                img.style.display = 'block';
+        let previewContainer = document.getElementById('imagePreviewContainer');
+        previewContainer.innerHTML = '';
+        if (e.target.files && e.target.files.length > 0) {
+            for(let i=0; i<e.target.files.length; i++) {
+                let reader = new FileReader();
+                reader.onload = function (event) {
+                    let img = document.createElement('img');
+                    img.src = event.target.result;
+                    img.style.maxHeight = '100px';
+                    img.style.borderRadius = '4px';
+                    img.classList.add('shadow-sm', 'border');
+                    previewContainer.appendChild(img);
+                }
+                reader.readAsDataURL(e.target.files[i]);
             }
-            reader.readAsDataURL(e.target.files[0]);
-        } else {
-            document.getElementById('imagePreview').style.display = 'none';
         }
     });
 </script>

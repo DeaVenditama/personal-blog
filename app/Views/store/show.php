@@ -11,10 +11,32 @@
 <div class="row g-5">
     <div class="col-lg-7">
         <?php if (!empty($product['thumbnail'])): ?>
-            <img src="<?= base_url('uploads/products/' . $product['thumbnail']) ?>"
-                class="img-fluid rounded shadow-sm w-100 object-fit-cover" style="max-height: 500px;"
-                alt="<?= esc($product['title']) ?>" data-fallback="<?= htmlspecialchars($product['title'], ENT_QUOTES) ?>"
-                onerror="this.onerror=null; this.outerHTML='<div class=\'bg-secondary rounded d-flex align-items-center justify-content-center text-white w-100 shadow-sm text-center p-4\' style=\'min-height: 400px;\'><h1 class=\'display-5 fw-bold\'>' + this.getAttribute('data-fallback') + '</h1></div>';">
+            <?php 
+                $images = explode(';', $product['thumbnail']); 
+                if (count($images) > 1): 
+            ?>
+                <div id="productCarousel" class="carousel slide shadow-sm rounded overflow-hidden" data-bs-ride="carousel">
+                    <div class="carousel-inner">
+                        <?php foreach ($images as $index => $img): ?>
+                            <div class="carousel-item <?= $index === 0 ? 'active' : '' ?>">
+                                <img src="<?= base_url('uploads/products/' . esc(trim($img))) ?>" class="d-block w-100 object-fit-cover" style="max-height: 500px;" alt="<?= esc($product['title']) ?>">
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#productCarousel" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#productCarousel" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+                </div>
+            <?php else: ?>
+                <img src="<?= base_url('uploads/products/' . trim($images[0])) ?>"
+                    class="img-fluid rounded shadow-sm w-100 object-fit-cover" style="max-height: 500px;"
+                    alt="<?= esc($product['title']) ?>">
+            <?php endif; ?>
         <?php else: ?>
             <div class="bg-secondary rounded d-flex align-items-center justify-content-center text-white w-100 shadow-sm text-center p-4"
                 style="min-height: 400px;">

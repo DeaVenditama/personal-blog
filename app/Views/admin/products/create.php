@@ -65,7 +65,8 @@
 
                     <div class="mb-3">
                         <label for="thumbnail" class="form-label">Thumbnail (Gambar)</label>
-                        <input class="form-control" type="file" id="thumbnail" name="thumbnail" accept="image/*">
+                        <input class="form-control" type="file" id="thumbnail" name="thumbnail[]" accept="image/*" multiple>
+                        <div class="form-text mt-1">Pilih beberapa gambar sekaligus dengan menahan tombol Ctrl/Cmd.</div>
                     </div>
 
                     <div class="form-check form-switch mt-4">

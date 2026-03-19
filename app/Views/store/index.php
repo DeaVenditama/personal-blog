@@ -32,9 +32,10 @@
             <div class="col">
                 <div class="card h-100 border-0 shadow-sm product-card transition-hover">
                     <?php if (!empty($product['thumbnail'])): ?>
+                        <?php $firstImage = explode(';', $product['thumbnail'])[0]; ?>
                         <div class="ratio ratio-16x9">
-                            <a href="<?= base_url('store/' . $product['slug']) ?>" class="text-decoration-none">
-                                <img src="<?= base_url('uploads/products/' . $product['thumbnail']) ?>"
+                            <a href="<?= base_url($product['slug']) ?>" class="text-decoration-none">
+                                <img src="<?= base_url('uploads/products/' . trim($firstImage)) ?>"
                                     class="card-img-top object-fit-cover w-100 h-100" alt="<?= esc($product['title']) ?>"
                                     data-fallback="<?= htmlspecialchars($product['title'], ENT_QUOTES) ?>"
                                     onerror="this.onerror=null; this.outerHTML='<div class=\'w-100 h-100 d-flex align-items-center justify-content-center bg-secondary text-white p-3 text-center\'><strong>' + this.getAttribute('data-fallback') + '</strong></div>';">
@@ -42,7 +43,7 @@
                         </div>
                     <?php else: ?>
                         <div class="ratio ratio-16x9">
-                            <a href="<?= base_url('store/' . $product['slug']) ?>" class="text-decoration-none d-block w-100 h-100">
+                            <a href="<?= base_url($product['slug']) ?>" class="text-decoration-none d-block w-100 h-100">
                                 <div
                                     class="w-100 h-100 d-flex align-items-center justify-content-center bg-secondary text-white p-3 text-center">
                                     <strong><?= esc($product['title']) ?></strong>
@@ -53,7 +54,7 @@
 
                     <div class="card-body d-flex flex-column">
                         <h5 class="card-title fw-bold text-dark mb-2">
-                            <a href="<?= base_url('store/' . $product['slug']) ?>"
+                            <a href="<?= base_url($product['slug']) ?>"
                                 class="text-decoration-none text-dark hover-accent">
                                 <?= esc($product['title']) ?>
                             </a>
@@ -79,7 +80,7 @@
                                     <?= number_format($product['price'], 0, ',', '.') ?>
                                 </span>
                             <?php endif; ?>
-                            <a href="<?= base_url('store/' . $product['slug']) ?>"
+                            <a href="<?= base_url($product['slug']) ?>"
                                 class="btn btn-dark rounded-pill px-3 py-2 position-relative z-3 flex-shrink-0 text-nowrap"><i
                                     class="bi bi-cart"></i>
                                 Detail</a>

@@ -38,7 +38,7 @@ class Portfolios extends BaseController
             'sort_order' => 'permit_empty|is_natural',
             'image' => [
                 'label' => 'Project Image',
-                'rules' => 'uploaded[image]|is_image[image]|mime_in[image,image/jpg,image/jpeg,image/gif,image/png,image/webp]|max_size[image,2048]',
+                'rules' => 'max_size[image,2048]',
             ],
         ];
 
@@ -47,26 +47,32 @@ class Portfolios extends BaseController
             return redirect()->back()->withInput();
         }
 
-        $file = $this->request->getFile('image');
-        $imagePath = '';
+        $files = $this->request->getFileMultiple('image');
+        $imagePaths = [];
 
-        if ($file->isValid() && !$file->hasMoved()) {
-            $newName = $file->getRandomName();
-            $file->move(FCPATH . 'uploads/portfolio', $newName);
-            $imagePath = 'uploads/portfolio/' . $newName;
+        if ($files) {
+            foreach ($files as $file) {
+                if ($file->isValid() && !$file->hasMoved()) {
+                    $newName = $file->getRandomName();
+                    $file->move(FCPATH . 'uploads/portfolio', $newName);
+                    $imagePaths[] = 'uploads/portfolio/' . $newName;
+                }
+            }
         }
+        $imagePathStr = implode(';', $imagePaths);
 
         $description = $this->request->getPost('description');
         $description = preg_replace('#<script(.*?)>(.*?)</script>#is', '', (string) $description);
 
         $data = [
             'title' => $this->request->getPost('title'),
+            'slug' => mb_url_title($this->request->getPost('title'), '-', TRUE),
             'description' => $description,
             'tools' => $this->request->getPost('tools'),
             'project_url' => $this->request->getPost('project_url') ?: null,
             'status' => $this->request->getPost('status'),
             'sort_order' => $this->request->getPost('sort_order') ?: 0,
-            'image_path' => $imagePath
+            'image_path' => $imagePathStr
         ];
 
         $portfolioModel->insert($data);
@@ -121,7 +127,7 @@ class Portfolios extends BaseController
             'sort_order' => 'permit_empty|is_natural',
             'image' => [
                 'label' => 'Project Image',
-                'rules' => 'is_image[image]|mime_in[image,image/jpg,image/jpeg,image/gif,image/png,image/webp]|max_size[image,2048]',
+                'rules' => 'max_size[image,2048]',
             ],
         ];
 
@@ -135,6 +141,7 @@ class Portfolios extends BaseController
 
         $data = [
             'title' => $this->request->getPost('title'),
+            'slug' => mb_url_title($this->request->getPost('title'), '-', TRUE),
             'description' => $description,
             'tools' => $this->request->getPost('tools'),
             'project_url' => $this->request->getPost('project_url') ?: null,
@@ -142,15 +149,32 @@ class Portfolios extends BaseController
             'sort_order' => $this->request->getPost('sort_order') ?: 0,
         ];
 
-        $file = $this->request->getFile('image');
-        if ($file && $file->isValid() && !$file->hasMoved()) {
-            $newName = $file->getRandomName();
-            $file->move(FCPATH . 'uploads/portfolio', $newName);
-            $data['image_path'] = 'uploads/portfolio/' . $newName;
+        $files = $this->request->getFileMultiple('image');
+        $imagePaths = [];
 
-            // Delete old image
-            if (!empty($portfolio['image_path']) && file_exists(FCPATH . $portfolio['image_path'])) {
-                unlink(FCPATH . $portfolio['image_path']);
+        $hasNewFiles = false;
+        if ($files) {
+            foreach ($files as $file) {
+                if ($file->isValid() && !$file->hasMoved()) {
+                    $hasNewFiles = true;
+                    $newName = $file->getRandomName();
+                    $file->move(FCPATH . 'uploads/portfolio', $newName);
+                    $imagePaths[] = 'uploads/portfolio/' . $newName;
+                }
+            }
+        }
+
+        if ($hasNewFiles) {
+            $data['image_path'] = implode(';', $imagePaths);
+
+            // Delete old images
+            if (!empty($portfolio['image_path'])) {
+                $oldImages = explode(';', $portfolio['image_path']);
+                foreach ($oldImages as $oldImg) {
+                    if (file_exists(FCPATH . trim($oldImg))) {
+                        unlink(FCPATH . trim($oldImg));
+                    }
+                }
             }
         }
 
@@ -165,8 +189,13 @@ class Portfolios extends BaseController
         $portfolio = $portfolioModel->find($id);
 
         if ($portfolio) {
-            if (!empty($portfolio['image_path']) && file_exists(FCPATH . $portfolio['image_path'])) {
-                unlink(FCPATH . $portfolio['image_path']);
+            if (!empty($portfolio['image_path'])) {
+                $oldImages = explode(';', $portfolio['image_path']);
+                foreach ($oldImages as $oldImg) {
+                    if (file_exists(FCPATH . trim($oldImg))) {
+                        unlink(FCPATH . trim($oldImg));
+                    }
+                }
             }
             $portfolioModel->delete($id);
             session()->setFlashdata('success', 'Portfolio project deleted successfully!');

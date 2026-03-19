@@ -43,7 +43,7 @@
     <!-- Portfolios -->
     <?php foreach ($portfolios as $portfolio): ?>
     <url>
-        <loc><?= base_url('portfolio/' . $portfolio['id']) ?></loc>
+        <loc><?= base_url($portfolio['slug']) ?></loc>
         <?php
             $lastmod = !empty($portfolio['updated_at']) ? $portfolio['updated_at'] : (!empty($portfolio['created_at']) ? $portfolio['created_at'] : date('Y-m-d H:i:s'));
         ?>
@@ -56,7 +56,7 @@
     <!-- Products -->
     <?php foreach ($products as $product): ?>
     <url>
-        <loc><?= base_url('store/' . $product['slug']) ?></loc>
+        <loc><?= base_url($product['slug']) ?></loc>
         <?php
             $lastmod = !empty($product['updated_at']) ? $product['updated_at'] : (!empty($product['created_at']) ? $product['created_at'] : date('Y-m-d H:i:s'));
         ?>

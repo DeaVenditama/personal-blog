@@ -25,7 +25,7 @@ class Products extends BaseController
             'title' => 'required',
             'price' => 'required|numeric',
             'thumbnail' => [
-                'rules' => 'max_size[thumbnail,2048]|is_image[thumbnail]|mime_in[thumbnail,image/jpg,image/jpeg,image/png,image/webp]',
+                'rules' => 'max_size[thumbnail,2048]',
             ]
         ];
 
@@ -36,10 +36,21 @@ class Products extends BaseController
         $slug = mb_url_title($this->request->getPost('title'), '-', TRUE);
 
         $thumbnailName = null;
-        $file = $this->request->getFile('thumbnail');
-        if ($file && $file->isValid() && !$file->hasMoved()) {
-            $thumbnailName = $file->getRandomName();
-            $file->move('uploads/products', $thumbnailName);
+        $files = $this->request->getFileMultiple('thumbnail');
+        $imagePaths = [];
+
+        if ($files) {
+            foreach ($files as $file) {
+                if ($file->isValid() && !$file->hasMoved()) {
+                    $newName = $file->getRandomName();
+                    $file->move('uploads/products', $newName);
+                    $imagePaths[] = $newName;
+                }
+            }
+        }
+        
+        if (!empty($imagePaths)) {
+            $thumbnailName = implode(';', $imagePaths);
         }
 
         $description = $this->request->getPost('description');
@@ -99,7 +110,7 @@ class Products extends BaseController
             'title' => 'required',
             'price' => 'required|numeric',
             'thumbnail' => [
-                'rules' => 'max_size[thumbnail,2048]|is_image[thumbnail]|mime_in[thumbnail,image/jpg,image/jpeg,image/png,image/webp]',
+                'rules' => 'max_size[thumbnail,2048]',
             ]
         ];
 
@@ -110,13 +121,31 @@ class Products extends BaseController
         $slug = mb_url_title($this->request->getPost('title'), '-', TRUE);
 
         $thumbnailName = $product['thumbnail'];
-        $file = $this->request->getFile('thumbnail');
-        if ($file && $file->isValid() && !$file->hasMoved()) {
-            if ($thumbnailName && file_exists('uploads/products/' . $thumbnailName)) {
-                unlink('uploads/products/' . $thumbnailName);
+        $files = $this->request->getFileMultiple('thumbnail');
+        $imagePaths = [];
+        $hasNewFiles = false;
+
+        if ($files) {
+            foreach ($files as $file) {
+                if ($file->isValid() && !$file->hasMoved()) {
+                    $hasNewFiles = true;
+                    $newName = $file->getRandomName();
+                    $file->move('uploads/products', $newName);
+                    $imagePaths[] = $newName;
+                }
             }
-            $thumbnailName = $file->getRandomName();
-            $file->move('uploads/products', $thumbnailName);
+        }
+
+        if ($hasNewFiles) {
+            if ($thumbnailName) {
+                $oldImages = explode(';', $thumbnailName);
+                foreach ($oldImages as $oldImg) {
+                    if (file_exists('uploads/products/' . trim($oldImg))) {
+                        unlink('uploads/products/' . trim($oldImg));
+                    }
+                }
+            }
+            $thumbnailName = implode(';', $imagePaths);
         }
 
         $description = $this->request->getPost('description');
@@ -143,8 +172,13 @@ class Products extends BaseController
         $product = $productModel->find($id);
 
         if ($product) {
-            if ($product['thumbnail'] && file_exists('uploads/products/' . $product['thumbnail'])) {
-                unlink('uploads/products/' . $product['thumbnail']);
+            if ($product['thumbnail']) {
+                $oldImages = explode(';', $product['thumbnail']);
+                foreach ($oldImages as $oldImg) {
+                    if (file_exists('uploads/products/' . trim($oldImg))) {
+                        unlink('uploads/products/' . trim($oldImg));
+                    }
+                }
             }
             $productModel->delete($id);
         }

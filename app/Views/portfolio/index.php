@@ -12,9 +12,10 @@
             <div class="col-md-6 border-bottom pb-4 mb-2">
                 <div class="project-card d-flex flex-column h-100">
                     <?php if (!empty($project['image_path'])): ?>
+                        <?php $firstImage = explode(';', $project['image_path'])[0]; ?>
                         <div class="project-image-wrapper mb-3 overflow-hidden rounded shadow-sm" style="height: 240px;">
-                            <a href="<?= base_url('portfolio/' . $project['id']) ?>" class="text-decoration-none">
-                                <img src="<?= base_url(esc($project['image_path'])) ?>" alt="<?= esc($project['title']) ?>"
+                            <a href="<?= base_url($project['slug']) ?>" class="text-decoration-none">
+                                <img src="<?= base_url(esc(trim($firstImage))) ?>" alt="<?= esc($project['title']) ?>"
                                     class="w-100 h-100 object-fit-cover transition-transform hover-scale"
                                     data-fallback="<?= htmlspecialchars($project['title'], ENT_QUOTES) ?>"
                                     onerror="this.onerror=null; this.outerHTML='<div class=\'w-100 h-100 d-flex align-items-center justify-content-center bg-secondary text-white p-3 text-center transition-transform hover-scale\'><strong>' + this.getAttribute('data-fallback') + '</strong></div>';">
@@ -22,7 +23,7 @@
                         </div>
                     <?php else: ?>
                         <div class="project-image-wrapper mb-3 overflow-hidden rounded shadow-sm" style="height: 240px;">
-                            <a href="<?= base_url('portfolio/' . $project['id']) ?>"
+                            <a href="<?= base_url($project['slug']) ?>"
                                 class="text-decoration-none d-block w-100 h-100">
                                 <div
                                     class="w-100 h-100 d-flex align-items-center justify-content-center bg-secondary text-white p-3 text-center transition-transform hover-scale">
@@ -33,7 +34,7 @@
                     <?php endif; ?>
 
                     <h3 class="h4 fw-bold mb-2">
-                        <a href="<?= base_url('portfolio/' . $project['id']) ?>"
+                        <a href="<?= base_url($project['slug']) ?>"
                             class="text-decoration-none text-dark hover-accent">
                             <?= esc($project['title']) ?>
                         </a>
@@ -56,7 +57,7 @@
                     <p class="text-muted flex-grow-1 mb-2">
                         <?= substr(strip_tags((string) $project['description']), 0, 150) ?>...
                     </p>
-                    <a href="<?= base_url('portfolio/' . $project['id']) ?>"
+                    <a href="<?= base_url($project['slug']) ?>"
                         class="text-decoration-none fw-bold text-dark hover-accent">
                         Baca Selengkapnya <i class="bi bi-arrow-right small"></i>
                     </a>
