@@ -77,9 +77,19 @@
                 <?php foreach ($related_posts as $related): ?>
                     <div class="col-md-4">
                         <div class="card h-100 border-0 shadow-sm transition-hover">
-                            <?php if (!empty($related['image_path'])): ?>
+                            <?php 
+                                $thumbnail_url = null;
+                                if (!empty($related['image_path'])) {
+                                    $thumbnail_url = base_url($related['image_path']);
+                                } else {
+                                    if (preg_match('/<img[^>]+src=(?:\"|\')([^\"\']+)(?:\"|\')[^>]*>/i', $related['content'], $match)) {
+                                        $thumbnail_url = $match[1];
+                                    }
+                                }
+                            ?>
+                            <?php if (!empty($thumbnail_url)): ?>
                                 <a href="<?= base_url($related['slug']) ?>">
-                                    <img src="<?= base_url(esc($related['image_path'])) ?>" class="card-img-top object-fit-cover" style="height: 160px;" alt="<?= esc($related['title']) ?>">
+                                    <img src="<?= $thumbnail_url ?>" class="card-img-top object-fit-cover" style="height: 160px;" alt="<?= esc($related['title']) ?>">
                                 </a>
                             <?php else: ?>
                                 <a href="<?= base_url($related['slug']) ?>" class="text-decoration-none overflow-hidden card-img-top" style="height: 160px;">
