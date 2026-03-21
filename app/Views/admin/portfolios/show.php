@@ -20,9 +20,14 @@
     <div class="col-lg-8">
         <div class="card border-0 shadow-sm p-4 mb-4">
             <?php if (!empty($portfolio['image_path'])): ?>
-                <div class="mb-4 text-center bg-light rounded p-3 border">
-                    <img src="<?= base_url($portfolio['image_path']) ?>" alt="<?= esc($portfolio['title']) ?>"
-                        class="img-fluid rounded shadow-sm" style="max-height: 400px; object-fit: contain;">
+                <div class="mb-4 text-center bg-light rounded p-3 border d-flex flex-column gap-3">
+                    <?php 
+                    $images = explode(';', $portfolio['image_path']);
+                    foreach ($images as $img): 
+                    ?>
+                    <img src="<?= base_url(trim($img)) ?>" alt="<?= esc($portfolio['title']) ?>"
+                        class="img-fluid rounded shadow-sm mx-auto d-block" style="max-height: 400px; object-fit: contain;">
+                    <?php endforeach; ?>
                 </div>
             <?php endif; ?>
 

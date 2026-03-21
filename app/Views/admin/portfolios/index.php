@@ -26,7 +26,8 @@
                         <tr>
                             <td>
                                 <?php if (!empty($portfolio['image_path'])): ?>
-                                    <img src="<?= base_url($portfolio['image_path']) ?>" alt="Project Image"
+                                    <?php $firstImage = explode(';', $portfolio['image_path'])[0]; ?>
+                                    <img src="<?= base_url(trim($firstImage)) ?>" alt="Project Image"
                                         style="height: 40px; width: 60px; object-fit: cover; border-radius: 4px;"
                                         onerror="this.onerror=null; this.outerHTML='<div class=\'bg-light d-flex align-items-center justify-content-center text-muted text-center\' style=\'height: 40px; width: 60px; border-radius: 4px; font-size: 0.6rem; line-height: 1;\'>Image not found</div>';">
                                 <?php else: ?>
