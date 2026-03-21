@@ -56,7 +56,7 @@
             </div>
 
             <div class="fs-5" style="line-height: 1.8;">
-                <?= nl2br(esc($project['description'])) ?>
+                <?= $project['description'] ?>
             </div>
         </div>
     </div>
