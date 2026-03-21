@@ -262,13 +262,23 @@ class Home extends BaseController
         $email = $isAdmin ? $session->get('email') : $this->request->getPost('email');
 
         $commentModel = new \App\Models\Comment();
-        $commentModel->save([
+        $commentData = [
             'post_id' => $postId,
             'parent_id' => $parentId,
             'is_admin' => $isAdmin ? 1 : 0,
             'name' => $name,
             'email' => $email,
             'comment' => $this->request->getPost('comment')
+        ];
+        // Ensure parent_id is only included if it exists in the column schema. Wait, assuming parent_id and is_admin exist based on Home.php existing code.
+        $commentModel->save($commentData);
+
+        // Add Notification for new comment
+        $notificationModel = new \App\Models\Notification();
+        $notificationModel->insert([
+            'type' => 'New Comment',
+            'message' => 'New comment from ' . $name . ' on post: ' . $post['title'],
+            'reference_id' => $postId
         ]);
 
         return redirect()->to(base_url($post['slug']))->with('success', 'Komentar berhasil ditambahkan.');

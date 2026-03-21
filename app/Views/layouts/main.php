@@ -8,7 +8,7 @@
     <?php
     $site_name = 'Dea Venditama Blog';
     $page_title = $title ?? $site_name;
-    $page_description = $meta_description ?? 'A minimalist personal blog platform.';
+    $page_description = $meta_description ?? 'Blog, Portfolio, & Store Dea Venditama. Eksplorasi software engineering dan programming, koleksi proyek sistem informasi, dan layanan solusi digital profesional.';
     $page_url = $canonical_url ?? current_url();
     $page_type = $og_type ?? 'website';
     $page_image = $og_image ?? base_url('assets/images/default-social-card.png'); // Pastikan file gambar default tersedia

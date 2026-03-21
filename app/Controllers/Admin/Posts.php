@@ -10,9 +10,22 @@ class Posts extends BaseController
     public function index()
     {
         $postModel = new \App\Models\Post();
+        $posts = $postModel->orderBy('created_at', 'DESC')->findAll();
+
+        $commentModel = new \App\Models\Comment();
+        $notificationModel = new \App\Models\Notification();
+
+        foreach ($posts as &$post) {
+            $post['comment_count'] = $commentModel->where('post_id', $post['id'])->countAllResults();
+            $post['has_new_comment'] = $notificationModel->where('type', 'New Comment')
+                ->where('reference_id', $post['id'])
+                ->where('is_read', 0)
+                ->countAllResults() > 0;
+        }
+
         $data = [
             'title' => 'Manage Posts',
-            'posts' => $postModel->orderBy('created_at', 'DESC')->findAll()
+            'posts' => $posts
         ];
         return view('admin/posts/index', $data);
     }

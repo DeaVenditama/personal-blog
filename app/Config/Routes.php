@@ -41,10 +41,9 @@ $routes->group('admin', ['namespace' => 'App\Controllers\Admin', 'filter' => 'au
     $routes->get('categories/edit/(:num)', 'Categories::edit/$1');
     $routes->post('categories/update/(:num)', 'Categories::update/$1');
     $routes->get('categories/delete/(:num)', 'Categories::delete/$1');
-    // Media Library
-    $routes->get('media', 'Media::index');
-    $routes->post('media/upload', 'Media::upload');
-    $routes->get('media/delete/(:num)', 'Media::delete/$1');
+
+    // Notifications
+    $routes->get('notifications/read/(:num)', 'Notifications::read/$1');
 
     // Portfolios CRUD
     $routes->get('portfolios', 'Portfolios::index');

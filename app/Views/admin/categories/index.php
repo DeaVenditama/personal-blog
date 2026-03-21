@@ -40,6 +40,9 @@
                                         </span></td>
                                     <td class="text-end">
                                         <div class="d-flex flex-wrap gap-1 justify-content-end">
+                                            <a href="<?= base_url('admin/categories/edit/' . $cat['id']) ?>"
+                                                class="btn btn-sm btn-light border text-dark"><i class="bi bi-pencil"></i>
+                                                Edit</a>
                                             <a href="<?= base_url('admin/categories/delete/' . $cat['id']) ?>"
                                                 class="btn btn-sm btn-light border text-danger"
                                                 onclick="return confirm('Delete this category?');"><i class="bi bi-trash"></i>

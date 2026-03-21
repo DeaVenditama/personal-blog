@@ -15,6 +15,7 @@
                     <th>Title</th>
                     <th>Status</th>
                     <th>Reads</th>
+                    <th>Comments</th>
                     <th>Published At</th>
                     <th>Action</th>
                 </tr>
@@ -38,6 +39,14 @@
                             <td>
                                 <span class="badge bg-light text-dark border"><i class="bi bi-eye"></i>
                                     <?= $post['read_count'] ?></span>
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-dark border"><i class="bi bi-chat-dots"></i>
+                                    <?= isset($post['comment_count']) ? $post['comment_count'] : 0 ?>
+                                </span>
+                                <?php if (!empty($post['has_new_comment'])): ?>
+                                    <span class="badge bg-danger ms-1" style="font-size: 0.6rem;">New</span>
+                                <?php endif; ?>
                             </td>
                             <td>
                                 <?= $post['published_at'] ? date('M d, Y', strtotime($post['published_at'])) : '-' ?>

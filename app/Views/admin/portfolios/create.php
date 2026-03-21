@@ -22,7 +22,7 @@
 
                 <div class="mb-3">
                     <label class="form-label text-muted small"><strong>Description</strong></label>
-                    <textarea name="description" class="form-control" rows="5" required
+                    <textarea name="description" id="editor" class="form-control" rows="5" required
                         placeholder="Describe the project..."><?= old('description') ?></textarea>
                 </div>
 
@@ -90,6 +90,27 @@
                 reader.readAsDataURL(e.target.files[i]);
             }
         }
+    });
+</script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#editor').summernote({
+            placeholder: 'Describe the project...',
+            tabsize: 2,
+            height: 300,
+            toolbar: [
+                ['style', ['style']],
+                ['font', ['bold', 'underline', 'clear']],
+                ['color', ['color']],
+                ['para', ['ul', 'ol', 'paragraph']],
+                ['table', ['table']],
+                ['insert', ['link', 'picture', 'video']],
+                ['view', ['fullscreen', 'codeview', 'help']]
+            ]
+        });
     });
 </script>
 <?= $this->endSection() ?>

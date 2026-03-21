@@ -68,11 +68,11 @@
             <!-- Sidebar -->
             <div class="col-md-3 col-lg-2 px-0 sidebar offcanvas-md offcanvas-start bg-white" tabindex="-1" id="adminSidebar" aria-labelledby="adminSidebarLabel">
                 <div class="offcanvas-header border-bottom d-flex d-md-none">
-                    <h5 class="offcanvas-title fw-bold" id="adminSidebarLabel">MyBlog Admin</h5>
+                    <h5 class="offcanvas-title fw-bold" id="adminSidebarLabel">Dea Venditama.</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#adminSidebar" aria-label="Close"></button>
                 </div>
                 <div class="p-4 border-bottom text-center d-none d-md-block">
-                    <h5 class="fw-bold mb-0">MyBlog Admin</h5>
+                    <h5 class="fw-bold mb-0">Dea Venditama.</h5>
                 </div>
                 <div class="p-3">
                     <ul class="nav flex-column">
@@ -92,12 +92,6 @@
                             <a class="nav-link <?= (url_is('admin/categories*')) ? 'active' : '' ?>"
                                 href="<?= base_url('admin/categories') ?>">
                                 <i class="bi bi-folder me-2"></i> Categories
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link <?= (url_is('admin/media*')) ? 'active' : '' ?>"
-                                href="<?= base_url('admin/media') ?>">
-                                <i class="bi bi-images me-2"></i> Media Library
                             </a>
                         </li>
                         <li class="nav-item">
@@ -131,6 +125,11 @@
             <!-- Main Content -->
             <div class="col-md-9 col-lg-10 px-0">
                 <!-- Topbar -->
+                <?php
+                    $notificationModel = new \App\Models\Notification();
+                    $unreadNotifications = $notificationModel->where('is_read', 0)->orderBy('created_at', 'DESC')->findAll();
+                    $unreadCount = count($unreadNotifications);
+                ?>
                 <div class="topbar d-flex justify-content-between align-items-center">
                     <div>
                         <button class="btn btn-light d-md-none me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#adminSidebar" aria-controls="adminSidebar">
@@ -140,8 +139,38 @@
                             <?= $title ?? 'Dashboard' ?>
                         </span>
                     </div>
-                    <div>
-                        <span class="text-muted"><i class="bi bi-person-circle me-1"></i> Admin User</span>
+                    <div class="d-flex align-items-center gap-3">
+                        <!-- Notifications Dropdown -->
+                        <div class="dropdown">
+                            <a href="#" class="text-dark text-decoration-none position-relative" id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-bell fs-5"></i>
+                                <?php if ($unreadCount > 0): ?>
+                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem;">
+                                        <?= $unreadCount ?>
+                                    </span>
+                                <?php endif; ?>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0" aria-labelledby="notificationDropdown" style="width: 300px; max-height: 400px; overflow-y: auto;">
+                                <li><h6 class="dropdown-header fw-bold">Recent Notifications</h6></li>
+                                <?php if (empty($unreadNotifications)): ?>
+                                    <li><span class="dropdown-item text-muted small">No new notifications.</span></li>
+                                <?php else: ?>
+                                    <?php foreach ($unreadNotifications as $notif): ?>
+                                        <li>
+                                            <a class="dropdown-item py-2 border-bottom" href="<?= base_url('admin/notifications/read/' . $notif['id']) ?>">
+                                                <div class="d-flex w-100 justify-content-between">
+                                                    <strong class="mb-1 text-truncate" style="max-width: 200px;"><?= esc($notif['type']) ?></strong>
+                                                    <small class="text-muted" style="font-size: 0.70rem;"><?= date('M d, H:i', strtotime($notif['created_at'])) ?></small>
+                                                </div>
+                                                <p class="mb-1 small text-wrap"><?= esc($notif['message']) ?></p>
+                                            </a>
+                                        </li>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            </ul>
+                        </div>
+
+                        <span class="text-muted border-start ps-3"><i class="bi bi-person-circle me-1"></i> Admin User</span>
                     </div>
                 </div>
 
