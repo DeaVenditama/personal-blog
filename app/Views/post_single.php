@@ -81,6 +81,12 @@
                                 <a href="<?= base_url($related['slug']) ?>">
                                     <img src="<?= base_url(esc($related['image_path'])) ?>" class="card-img-top object-fit-cover" style="height: 160px;" alt="<?= esc($related['title']) ?>">
                                 </a>
+                            <?php else: ?>
+                                <a href="<?= base_url($related['slug']) ?>" class="text-decoration-none overflow-hidden card-img-top" style="height: 160px;">
+                                    <div class="w-100 h-100 d-flex align-items-center justify-content-center bg-secondary text-white p-3 text-center">
+                                        <strong><?= esc($related['title']) ?></strong>
+                                    </div>
+                                </a>
                             <?php endif; ?>
                             <div class="card-body">
                                 <h6 class="card-title fw-bold">

@@ -152,6 +152,14 @@
                                     <img src="<?= base_url('uploads/products/' . trim($fstImg)) ?>" class="card-img-top object-fit-cover w-100 h-100" alt="<?= esc($rel_product['title']) ?>">
                                 </a>
                             </div>
+                        <?php else: ?>
+                            <div class="ratio ratio-16x9">
+                                <a href="<?= base_url($rel_product['slug']) ?>" class="text-decoration-none d-block w-100 h-100">
+                                    <div class="w-100 h-100 d-flex align-items-center justify-content-center bg-secondary text-white p-3 text-center card-img-top">
+                                        <strong><?= esc($rel_product['title']) ?></strong>
+                                    </div>
+                                </a>
+                            </div>
                         <?php endif; ?>
                         <div class="card-body d-flex flex-column">
                             <h6 class="card-title fw-bold">

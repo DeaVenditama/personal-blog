@@ -123,9 +123,17 @@
                         <div class="project-card d-flex flex-column h-100 border p-3 rounded shadow-sm transition-hover bg-white">
                             <?php if (!empty($rel_project['image_path'])): ?>
                                 <?php $firstImage = explode(';', $rel_project['image_path'])[0]; ?>
-                                <div class="overflow-hidden rounded mb-3">
+                                <div class="overflow-hidden rounded mb-3" style="height: 240px;">
                                     <a href="<?= base_url($rel_project['slug']) ?>">
-                                        <img src="<?= base_url(esc(trim($firstImage))) ?>" class="w-100 rounded object-fit-cover hover-scale transition-transform" style="height: 240px;" alt="<?= esc($rel_project['title']) ?>">
+                                        <img src="<?= base_url(esc(trim($firstImage))) ?>" class="w-100 rounded object-fit-cover hover-scale transition-transform h-100" alt="<?= esc($rel_project['title']) ?>">
+                                    </a>
+                                </div>
+                            <?php else: ?>
+                                <div class="overflow-hidden rounded mb-3" style="height: 240px;">
+                                    <a href="<?= base_url($rel_project['slug']) ?>" class="text-decoration-none d-block w-100 h-100">
+                                        <div class="w-100 h-100 d-flex align-items-center justify-content-center bg-secondary text-white p-3 text-center hover-scale transition-transform rounded">
+                                            <strong><?= esc($rel_project['title']) ?></strong>
+                                        </div>
                                     </a>
                                 </div>
                             <?php endif; ?>
