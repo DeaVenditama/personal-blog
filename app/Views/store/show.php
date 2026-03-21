@@ -137,5 +137,45 @@
         </div>
     </div>
 </div>
+<!-- Related Products -->
+<?php if (!empty($related_products)): ?>
+    <div class="mt-5 pt-5 border-top">
+        <h4 class="fw-bold mb-5 text-center">Produk Lainnya yang Mungkin Anda Suka</h4>
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            <?php foreach ($related_products as $rel_product): ?>
+                <div class="col">
+                    <div class="card h-100 border-0 shadow-sm transition-hover product-card">
+                        <?php if (!empty($rel_product['thumbnail'])): ?>
+                            <?php $fstImg = explode(';', $rel_product['thumbnail'])[0]; ?>
+                            <div class="ratio ratio-16x9">
+                                <a href="<?= base_url($rel_product['slug']) ?>" class="text-decoration-none">
+                                    <img src="<?= base_url('uploads/products/' . trim($fstImg)) ?>" class="card-img-top object-fit-cover w-100 h-100" alt="<?= esc($rel_product['title']) ?>">
+                                </a>
+                            </div>
+                        <?php endif; ?>
+                        <div class="card-body d-flex flex-column">
+                            <h6 class="card-title fw-bold">
+                                <a href="<?= base_url($rel_product['slug']) ?>" class="text-decoration-none text-dark hover-accent">
+                                    <?= esc($rel_product['title']) ?>
+                                </a>
+                            </h6>
+                            <div class="mt-auto pt-3 border-top d-flex justify-content-between align-items-center">
+                                <?php if (isset($rel_product['discount_percentage']) && $rel_product['discount_percentage'] > 0): ?>
+                                    <?php $discountedPrice = $rel_product['price'] - ($rel_product['price'] * ($rel_product['discount_percentage'] / 100)); ?>
+                                    <div>
+                                        <div class="text-muted small text-decoration-line-through">Rp <?= number_format($rel_product['price'], 0, ',', '.') ?></div>
+                                        <div class="fw-bold text-danger">Rp <?= number_format($discountedPrice, 0, ',', '.') ?></div>
+                                    </div>
+                                <?php else: ?>
+                                    <span class="fw-bold fs-6 text-dark">Rp <?= number_format($rel_product['price'], 0, ',', '.') ?></span>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+<?php endif; ?>
 
 <?= $this->endSection() ?>

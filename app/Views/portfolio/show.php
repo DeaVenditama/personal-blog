@@ -112,5 +112,44 @@
     </div>
 </div>
 
+<!-- Related Portfolio -->
+<?php if (!empty($related_projects)): ?>
+    <div class="row mt-5 pt-5 border-top">
+        <div class="col-12">
+            <h4 class="fw-bold mb-4 text-center">Anda Mungkin Juga Tertarik Dengan</h4>
+            <div class="row g-4 justify-content-center">
+                <?php foreach ($related_projects as $rel_project): ?>
+                    <div class="col-md-6 col-lg-5">
+                        <div class="project-card d-flex flex-column h-100 border p-3 rounded shadow-sm transition-hover bg-white">
+                            <?php if (!empty($rel_project['image_path'])): ?>
+                                <?php $firstImage = explode(';', $rel_project['image_path'])[0]; ?>
+                                <div class="overflow-hidden rounded mb-3">
+                                    <a href="<?= base_url($rel_project['slug']) ?>">
+                                        <img src="<?= base_url(esc(trim($firstImage))) ?>" class="w-100 rounded object-fit-cover hover-scale transition-transform" style="height: 240px;" alt="<?= esc($rel_project['title']) ?>">
+                                    </a>
+                                </div>
+                            <?php endif; ?>
+                            <h5 class="fw-bold mb-2">
+                                <a href="<?= base_url($rel_project['slug']) ?>" class="text-decoration-none text-dark hover-accent">
+                                    <?= esc($rel_project['title']) ?>
+                                </a>
+                            </h5>
+                            <div class="mt-auto">
+                                <?php
+                                $tools = explode(',', $rel_project['tools']);
+                                foreach ($tools as $tool):
+                                    $tool = trim($tool);
+                                    if (empty($tool)) continue;
+                                ?>
+                                    <span class="badge bg-light text-dark border fw-normal me-1 mb-1 px-2 py-1"><?= esc($tool) ?></span>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+    </div>
+<?php endif; ?>
 
 <?= $this->endSection() ?>

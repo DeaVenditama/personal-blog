@@ -156,6 +156,13 @@ class Home extends BaseController
                 $comments[$main['id']] = $main;
             }
 
+            $relatedPosts = $postModel->select('posts.*, categories.name as category_name, categories.slug as category_slug')
+                ->join('categories', 'categories.id = posts.category_id', 'left')
+                ->where('posts.status', 'published')
+                ->where('posts.id !=', $post['id'])
+                ->orderBy('published_at', 'DESC')
+                ->findAll(3);
+
             $data = [
                 'title' => (!empty($post['meta_title'])) ? $post['meta_title'] : $post['title'],
                 'meta_description' => (!empty($post['meta_description'])) ? $post['meta_description'] : substr(strip_tags($post['content']), 0, 160),
@@ -165,7 +172,8 @@ class Home extends BaseController
                 'post' => $post,
                 'comments' => $comments,
                 'totalMainComments' => $totalMainComments,
-                'currentLimit' => $limit
+                'currentLimit' => $limit,
+                'related_posts' => $relatedPosts
             ];
 
             return view('post_single', $data);
@@ -178,13 +186,20 @@ class Home extends BaseController
             ->first();
 
         if ($project) {
+            $relatedProjects = $portfolioModel->where('status', 'published')
+                ->where('id !=', $project['id'])
+                ->orderBy('sort_order', 'ASC')
+                ->orderBy('id', 'DESC')
+                ->findAll(2);
+
             $data = [
                 'title' => esc($project['title']) . ' - Portfolio Dea Venditama',
                 'meta_description' => substr(strip_tags((string) $project['description']), 0, 160),
                 'canonical_url' => base_url($project['slug']),
                 'og_type' => 'article',
                 'og_image' => (!empty($project['image_path'])) ? base_url(trim(explode(';', $project['image_path'])[0])) : null,
-                'project' => $project
+                'project' => $project,
+                'related_projects' => $relatedProjects
             ];
             return view('portfolio/show', $data);
         }
@@ -196,13 +211,19 @@ class Home extends BaseController
             ->first();
 
         if ($product) {
+            $relatedProducts = $productModel->where('is_active', true)
+                ->where('id !=', $product['id'])
+                ->orderBy('id', 'DESC')
+                ->findAll(3);
+
             $data = [
                 'title' => $product['title'] . ' | Source Code | Dea Venditama',
                 'meta_description' => substr(strip_tags($product['description']), 0, 160),
                 'canonical_url' => base_url($product['slug']),
                 'og_type' => 'product',
                 'og_image' => (!empty($product['thumbnail'])) ? base_url('uploads/products/' . trim(explode(';', $product['thumbnail'])[0])) : null,
-                'product' => $product
+                'product' => $product,
+                'related_products' => $relatedProducts
             ];
             return view('store/show', $data);
         }

@@ -69,6 +69,34 @@
         </div>
     </div>
 
+    <!-- Related Posts -->
+    <?php if (!empty($related_posts)): ?>
+        <div class="mt-5 pt-4 border-top">
+            <h4 class="fw-bold mb-4">Anda mungkin tertarik dengan</h4>
+            <div class="row g-4">
+                <?php foreach ($related_posts as $related): ?>
+                    <div class="col-md-4">
+                        <div class="card h-100 border-0 shadow-sm transition-hover">
+                            <?php if (!empty($related['image_path'])): ?>
+                                <a href="<?= base_url($related['slug']) ?>">
+                                    <img src="<?= base_url(esc($related['image_path'])) ?>" class="card-img-top object-fit-cover" style="height: 160px;" alt="<?= esc($related['title']) ?>">
+                                </a>
+                            <?php endif; ?>
+                            <div class="card-body">
+                                <h6 class="card-title fw-bold">
+                                    <a href="<?= base_url($related['slug']) ?>" class="text-decoration-none text-dark hover-accent lh-base">
+                                        <?= esc($related['title']) ?>
+                                    </a>
+                                </h6>
+                                <p class="text-muted small mb-0 mt-2"><i class="bi bi-calendar3"></i> <?= date('M d, Y', strtotime($related['published_at'])) ?></p>
+                            </div>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+    <?php endif; ?>
+
     <!-- Comments Section -->
     <div class="mt-5 pt-4" id="comments-section">
         <h4 class="fw-bold mb-4">Komentar (<?= isset($totalMainComments) ? $totalMainComments : count($comments) ?>)</h4>
